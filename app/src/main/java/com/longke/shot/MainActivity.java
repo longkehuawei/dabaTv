@@ -3,12 +3,16 @@ package com.longke.shot;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -43,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -116,6 +121,10 @@ public class MainActivity extends AppCompatActivity {
     Dialog ShowLoginDialog;
     String TrainId;
     String GroupIndex;
+    private MediaPlayer mMediaPlayer;
+    private Vibrator vibrator;
+    private String music = "f2.mp3";
+    private long[] pattern = { 0, 2000, 1000 };
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -345,7 +354,64 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+    private void playAlarm() {
 
+		/*
+		 * timerVibrate=new Timer(); timerVibrate.sc
+		 */
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(pattern, 0);
+
+		/*
+		 * Uri alert = RingtoneManager
+		 * .getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		 */
+        if (mMediaPlayer == null) {
+            mMediaPlayer = new MediaPlayer();
+        } else {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+        }
+        // mMediaPlayer = new MediaPlayer();
+        // mMediaPlayer.setDataSource(getApplicationContext(), alert);
+		/*if (alert == null) {
+			music = "bugu.mp3";
+		} else {
+			*//*if ("0".equals(alert.getAlertmusic())) {
+				music = "bugu.mp3";
+			} else if ("1".equals(alert.getAlertmusic())) {
+				music = "lingdang.mp3";
+			} else if ("2".equals(alert.getAlertmusic())) {
+				music = "menghuan.mp3";
+			}*//*
+		}*/
+
+        try {
+            AssetFileDescriptor fileDescriptor = getAssets().openFd(music);
+            mMediaPlayer
+                    .setDataSource(fileDescriptor.getFileDescriptor(),
+                            fileDescriptor.getStartOffset(),
+                            fileDescriptor.getLength());
+            getSystemService(AUDIO_SERVICE);
+
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // }
+
+    }
     /**
      * 获取数据
      */
@@ -594,7 +660,9 @@ public class MainActivity extends AppCompatActivity {
                         String type = object.getString("Type");
                         if (type.equals("Complete")) {
 
-
+                            if(info==null||info.getData()==null||info.getData().getStatus() != 3){
+                                return;
+                            }
                             Info.DataBean.ShootDetailListBean bean = new Info.DataBean.ShootDetailListBean();
                             boolean isHas = false;
                             for (int i = 0; i < list.size(); i++) {

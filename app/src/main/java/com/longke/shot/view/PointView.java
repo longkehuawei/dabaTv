@@ -27,6 +27,7 @@ public class PointView extends View {
     private float x;
     private float y;
     private float pre=1.0f;
+    private boolean isShowRed=true;
     List<Info.DataBean.ShootDetailListBean> mShootDetailListBean=new ArrayList<>();
 
     public void setShootDetailListBean(List<Info.DataBean.ShootDetailListBean> shootDetailListBean) {
@@ -76,11 +77,13 @@ public class PointView extends View {
             }else{
                 mPaint.setColor(mPointColor);
             }
-            Info.DataBean.ShootDetailListBean shootDetailListBean=mShootDetailListBean.get(i);
-            canvas.drawCircle(shootDetailListBean.getX()*pre,shootDetailListBean.getY()*pre,shootDetailListBean.getWidth()*pre/2,mPaint);
-            mPaint.setTextSize(30);
-            canvas.drawText(""+(i+1), shootDetailListBean.getX()*pre-shootDetailListBean.getWidth()*pre/2, shootDetailListBean.getY()*pre-shootDetailListBean.getWidth()*pre/2, mPaint);
-        }
+            if(isShowRed) {
+                Info.DataBean.ShootDetailListBean shootDetailListBean = mShootDetailListBean.get(i);
+                canvas.drawCircle(shootDetailListBean.getX() * pre, shootDetailListBean.getY() * pre, shootDetailListBean.getWidth() * pre / 2, mPaint);
+                mPaint.setTextSize(30);
+                canvas.drawText("" + (i + 1), shootDetailListBean.getX() * pre - shootDetailListBean.getWidth() * pre / 2, shootDetailListBean.getY() * pre - shootDetailListBean.getWidth() * pre / 2, mPaint);
+             }
+            }
         if(mShootDetailListBean.size()==0){
             canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         }

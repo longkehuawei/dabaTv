@@ -5,7 +5,7 @@ package com.longke.shot;
  */
 
 public class Urls {
-    public static final String BASE_URL="http://192.168.31.148:81";
+    public static final String BASE_URL="http://192.168.31.121:81";
 
     public static final String GetTrainStudentData = BASE_URL +"/api/TrainStudent/GetTrainStudentDataByTVCode";
     public static final String EndShoot = BASE_URL +"/api/TrainStudent/EndShoot";
