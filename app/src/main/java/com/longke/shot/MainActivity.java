@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
     String TrainId;
     String GroupIndex;
     private MediaPlayer mMediaPlayer;
+    private int clickCount;
+    private long preClickTime;
+    private boolean isShowRed=true;
     private Vibrator vibrator;
     private String music = "f2.mp3";
     private long[] pattern = { 0, 2000, 1000 };
@@ -359,8 +362,8 @@ public class MainActivity extends AppCompatActivity {
 		/*
 		 * timerVibrate=new Timer(); timerVibrate.sc
 		 */
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(pattern, 0);
+       /* vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(pattern, 0);*/
 
 		/*
 		 * Uri alert = RingtoneManager
@@ -387,24 +390,21 @@ public class MainActivity extends AppCompatActivity {
 		}*/
 
         try {
-            AssetFileDescriptor fileDescriptor = getAssets().openFd(music);
-            mMediaPlayer
-                    .setDataSource(fileDescriptor.getFileDescriptor(),
-                            fileDescriptor.getStartOffset(),
-                            fileDescriptor.getLength());
-            getSystemService(AUDIO_SERVICE);
 
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.prepare();
+            AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.f2);
+            try {
+                mMediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(),
+                        file.getLength());
+                mMediaPlayer.prepare();
+                file.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            getSystemService(AUDIO_SERVICE);
+            mMediaPlayer.setVolume(0.5f, 0.5f);
+            // mMediaPlayer.setLooping(true);
             mMediaPlayer.start();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -829,7 +829,33 @@ public class MainActivity extends AppCompatActivity {
             mVideoView.setVideoURI(Uri.parse(info.getData().getVideoStreamUrl()));
             mVideoView.setAspectRatio(IRenderView.AR_16_9_FIT_PARENT);
             mVideoView.start();
+            mVideoView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (clickCount == 0) {
+                        preClickTime = System.currentTimeMillis();
+                        clickCount++;
+                    } else if (clickCount == 1) {
+                        long curTime = System.currentTimeMillis();
+                        if((curTime - preClickTime) < 500){
+                            doubleClick();
+                        }
+                        clickCount = 0;
+                        preClickTime = 0;
+                    }else{
+                        Log.e(TAG, "clickCount = " + clickCount);
+                        clickCount = 0;
+                        preClickTime = 0;
+                    }
+                }
+            });
+
         }
+    }
+    private void doubleClick() {
+        Log.i(TAG, "double click");
+        isShowRed=!isShowRed;
+        shotPoint.setShowRed(isShowRed);
     }
 
     @OnClick({R.id.ready_layout, R.id.end_layout})

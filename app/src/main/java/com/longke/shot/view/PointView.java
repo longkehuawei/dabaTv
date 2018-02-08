@@ -27,6 +27,11 @@ public class PointView extends View {
     private float x;
     private float y;
     private float pre=1.0f;
+
+    public void setShowRed(boolean showRed) {
+        isShowRed = showRed;
+    }
+
     private boolean isShowRed=true;
     List<Info.DataBean.ShootDetailListBean> mShootDetailListBean=new ArrayList<>();
 
