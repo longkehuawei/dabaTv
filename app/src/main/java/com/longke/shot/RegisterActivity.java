@@ -68,7 +68,7 @@ public class RegisterActivity extends Activity {
             return;
         }
         deviceId= UUIDS.getUUID();
-        mSnText.setText("pad序列号:"+deviceId);
+        mSnText.setText("TV序列号:"+deviceId);
 
 
     }
@@ -138,7 +138,7 @@ public class RegisterActivity extends Activity {
     @OnClick(R.id.bt_get_check_code)
     public void onClick() {
         if(isEmpty(mPadName.getText().toString().trim())){
-            Toast.makeText(RegisterActivity.this,"请输入pad的名字",Toast.LENGTH_SHORT);
+            Toast.makeText(RegisterActivity.this,"请输入TV的名字",Toast.LENGTH_SHORT);
             return;
         }
         dialog = new ProgressDialog(RegisterActivity.this);
@@ -188,5 +188,9 @@ public class RegisterActivity extends Activity {
                         // ToastUtil.showShort(BaseApplication.context,error_msg);
                     }
                 });
+    }
+    @OnClick(R.id.peizhi)
+    public void onViewClicked() {
+        startActivity(new Intent(RegisterActivity.this,ConfigureActivity.class));
     }
 }

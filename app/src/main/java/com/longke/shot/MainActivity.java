@@ -3,9 +3,9 @@ package com.longke.shot;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     TextView numTv;
     MqttAndroidClient mqttAndroidClient;
 
-    final String serverUri = "tcp://192.168.31.23:1883";
+     String serverUri = "tcp://192.168.31.23:1883";
 
     String clientId = "ExampleAndroidClient";
     final String ShootReady = "ShootReady";
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private int clickCount;
     private long preClickTime;
     private boolean isShowRed=true;
+    private boolean isShowRedOpen=true;
     private Vibrator vibrator;
     private String music = "f2.mp3";
     private long[] pattern = { 0, 2000, 1000 };
@@ -176,7 +178,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         initView();
-
+        serverUri= (String) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.ServerUri,"");
+        if(TextUtils.isEmpty(serverUri)){
+            startActivity(new Intent(MainActivity.this,ConfigureActivity.class).putExtra("isFromMain",true));
+            finish();
+            return;
+        }
+        Urls.BASE_URL= (String) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.BASE_URL,"");
+        isShowRedOpen= (boolean) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.IS_RED,true);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
 
