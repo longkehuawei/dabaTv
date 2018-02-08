@@ -3,6 +3,7 @@ package com.longke.shot;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.media.AudioManager;
@@ -125,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private String music = "f2.mp3";
     private long[] pattern = { 0, 2000, 1000 };
+    String sn;
+    boolean isFrist=true;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -188,10 +191,12 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("width-display :" + display.getWidth());
         System.out.println("heigth-display :" + display.getHeight());
         mMyOkhttp = new MyOkHttp(okHttpClient);
-
+        sn = UUIDS.getUUID();
         initData();
         initConnection();
-        getData();
+        DeviceIsRegist();
+
+
         //initDpi(this);
         timer = new CountDownTimer(4 * 1000, 1000) {
             @Override
@@ -219,11 +224,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public static void initDpi(Context context) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        Configuration configuration = context.getResources().getConfiguration();
-        configuration.densityDpi = DisplayMetrics.DENSITY_XHIGH;//densityDpi 值越大，那显示时 dp对应的pix就越大
-        context.getResources().updateConfiguration(configuration, displayMetrics);
+    /**
+     * 获取数据
+     */
+    private void DeviceIsRegist() {
+
+        mMyOkhttp.get().url(Urls.DeviceIsRegist)
+                .addParam("type", "1")
+                .addParam("code", sn)
+                .tag(this)
+                .enqueue(new JsonResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, JSONObject response) {
+                        Log.d(TAG, "doPost onSuccess JSONObject:" + response);
+                        try {
+                            JSONObject object=  response.getJSONObject("Data");
+                            boolean Data=object.getBoolean("IsRegist");
+                            if(!Data){
+                                startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+                                finish();
+                            }else{
+                                getData();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, JSONArray response) {
+                        Log.d(TAG, "doPost onSuccess JSONArray:" + response);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, String error_msg) {
+                        Log.d(TAG, "doPost onFailure:" + error_msg);
+                        // ToastUtil.showShort(BaseApplication.context,error_msg);
+                    }
+                });
     }
 
     /**
@@ -321,7 +361,10 @@ public class MainActivity extends AppCompatActivity {
                         mShengyuzidan.setText(data.getRemainBullet() + "");
                         mZongchengji.setText(data.getTotalScore() + "");
                         mShengyushijian.setText(data.getRemainTime());
-                        setVideoUri();
+                        if(isFrist){
+                            setVideoUri();
+                            isFrist=false;
+                        }
                         if (info.getData().getStatus() == 0 || info.getData().getStatus() == 2 || info.getData().getStatus() == 4) {
                             mReadyLayout.setClickable(false);
                             mReadyLayout.setBackgroundResource(R.drawable.gray_shape);
@@ -426,6 +469,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(int statusCode, JSONObject response) {
                         Log.d(TAG, "doPost onSuccess JSONObject:" + response);
+                        boolean isNull = false;
+                        if(info==null||info.getData()==null){
+                            isNull=true;
+                        }
                         info = new Gson().fromJson(response.toString(), Info.class);
                         Info.DataBean data = info.getData();
                         mName.setText("姓名 ：" + data.getStudentName());
@@ -436,7 +483,9 @@ public class MainActivity extends AppCompatActivity {
                         mShengyuzidan.setText(data.getRemainBullet() + "");
                         mZongchengji.setText(data.getTotalScore() + "");
                         mShengyushijian.setText(data.getRemainTime());
-                        setVideoUri();
+                        if(isNull){
+                            setVideoUri();
+                        }
 
                         list = data.getShootDetailList();
                         if (list != null) {
