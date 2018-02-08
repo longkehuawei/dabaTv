@@ -27,6 +27,11 @@ public class PointView extends View {
     private float x;
     private float y;
     private float pre=1.0f;
+
+    public void setShowRed(boolean showRed) {
+        isShowRed = showRed;
+    }
+
     private boolean isShowRed=true;
     List<Info.DataBean.ShootDetailListBean> mShootDetailListBean=new ArrayList<>();
 
@@ -80,7 +85,7 @@ public class PointView extends View {
             if(isShowRed) {
                 Info.DataBean.ShootDetailListBean shootDetailListBean = mShootDetailListBean.get(i);
                 canvas.drawCircle(shootDetailListBean.getX() * pre, shootDetailListBean.getY() * pre, shootDetailListBean.getWidth() * pre / 2, mPaint);
-                mPaint.setTextSize(30);
+                mPaint.setTextSize(20);
                 canvas.drawText("" + (i + 1), shootDetailListBean.getX() * pre - shootDetailListBean.getWidth() * pre / 2, shootDetailListBean.getY() * pre - shootDetailListBean.getWidth() * pre / 2, mPaint);
              }
             }
