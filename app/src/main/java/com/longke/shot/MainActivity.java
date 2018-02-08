@@ -180,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
         initView();
-        serverUri= (String) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.ServerUri,"");
-        if(TextUtils.isEmpty(serverUri)){
+        Urls.BASE_URL= (String) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.BASE_URL,"");
+        if(TextUtils.isEmpty(Urls.BASE_URL)){
             startActivity(new Intent(MainActivity.this,ConfigureActivity.class).putExtra("isFromMain",true));
             finish();
             return;
@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         initData();
         initConnection();
         DeviceIsRegist();
+        GetConfigData();
 
 
         //initDpi(this);
@@ -241,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     private void DeviceIsRegist() {
 
         mMyOkhttp.get().url(Urls.DeviceIsRegist)
-                .addParam("type", "1")
+                .addParam("type", "2")
                 .addParam("code", sn)
                 .tag(this)
                 .enqueue(new JsonResponseHandler() {
@@ -365,11 +366,16 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
                         mName.setText("姓名 ：" + data.getStudentName());
-                        mZuhao.setText("组号 ：" + data.getGroupIndex() + "");
+                        mZuhao.setText("组号 ：第" + data.getGroupIndex() + "组");
                         mXuehao.setText("学号 ：" + data.getStudentCode() + "");
                         mKemu.setText("科目 ：" + data.getShootModeName() + "");
                         mBencisheji.setText(data.getCurrScore() + "");
-                        mShengyuzidan.setText(data.getRemainBullet() + "");
+                        if(data.getShootDetailList()==null||data.getShootDetailList().size()==0){
+                            mShengyuzidan.setText( "0");
+                        }else{
+                            mShengyuzidan.setText(data.getShootDetailList().get(data.getShootDetailList().size()-1).getBulletIndex()+"");
+
+                        }
                         mZongchengji.setText(data.getTotalScore() + "");
                         mShengyushijian.setText(data.getRemainTime());
                         if(isFrist){
@@ -484,11 +490,16 @@ public class MainActivity extends AppCompatActivity {
                         info = new Gson().fromJson(response.toString(), Info.class);
                         Info.DataBean data = info.getData();
                         mName.setText("姓名 ：" + data.getStudentName());
-                        mZuhao.setText("组号 ：" + data.getGroupIndex() + "");
+                        mZuhao.setText("组号 ：第" + data.getGroupIndex() + "组");
                         mXuehao.setText("学号 ：" + data.getStudentCode() + "");
                         mKemu.setText("科目 ：" + data.getShootModeName() + "");
                         mBencisheji.setText(data.getCurrScore() + "");
-                        mShengyuzidan.setText(data.getRemainBullet() + "");
+                        if(data.getShootDetailList()==null||data.getShootDetailList().size()==0){
+                            mShengyuzidan.setText( "0");
+                        }else{
+                            mShengyuzidan.setText(data.getShootDetailList().get(data.getShootDetailList().size()-1).getBulletIndex()+"");
+
+                        }
                         mZongchengji.setText(data.getTotalScore() + "");
                         mShengyushijian.setText(data.getRemainTime());
                         if(isNull){
@@ -517,6 +528,39 @@ public class MainActivity extends AppCompatActivity {
                             mReadyLayout.setBackgroundResource(R.drawable.gray_shape);
                             mEndLayout.setBackgroundResource(R.drawable.red_shape);
                             mEndLayout.setClickable(true);
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, JSONArray response) {
+                        Log.d(TAG, "doPost onSuccess JSONArray:" + response);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, String error_msg) {
+                        Log.d(TAG, "doPost onFailure:" + error_msg);
+                        // ToastUtil.showShort(BaseApplication.context,error_msg);
+                    }
+                });
+    }
+    /**
+     * 获取配置
+     */
+    private void GetConfigData() {
+        mMyOkhttp.get().url(Urls.GetConfigData)
+                .tag(this)
+                .enqueue(new JsonResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, JSONObject response) {
+                        try {
+                            JSONObject object=  response.getJSONObject("Data");
+                            String MqttServerIP=object.getString("MqttServerIP");
+                            String MqttPort=object.getString("MqttPort");
+                            serverUri="tcp://"+MqttServerIP+":"+MqttPort;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
 

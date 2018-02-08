@@ -53,31 +53,6 @@
                 android:background="@android:color/white">
 
                 <EditText
-                    android:id="@+id/tcp_name"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:background="@null"
-                    android:hint="请输入消息Tcp地址"
-                    android:padding="26.0dip"
-                    android:textSize="30sp"
-                    android:scrollHorizontally="true"
-                    android:singleLine="true"
-                    android:textColorHint="@color/gray01"
-                    />
-
-
-            </RelativeLayout>
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="0.5dip"
-                android:background="#cccccc" />
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white">
-
-                <EditText
                     android:id="@+id/url_name"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
