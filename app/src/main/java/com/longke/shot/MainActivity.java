@@ -186,6 +186,26 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+        shotPoint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (clickCount == 0) {
+                    preClickTime = System.currentTimeMillis();
+                    clickCount++;
+                } else if (clickCount == 1) {
+                    long curTime = System.currentTimeMillis();
+                    if((curTime - preClickTime) < 500){
+                        doubleClick();
+                    }
+                    clickCount = 0;
+                    preClickTime = 0;
+                }else{
+                    Log.e(TAG, "clickCount = " + clickCount);
+                    clickCount = 0;
+                    preClickTime = 0;
+                }
+            }
+        });
         Urls.BASE_URL= (String) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.BASE_URL,"");
         isShowRedOpen= (boolean) SharedPreferencesUtil.get(MainActivity.this,SharedPreferencesUtil.IS_RED,true);
         DisplayMetrics dm = new DisplayMetrics();
@@ -241,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void DeviceIsRegist() {
 
-        mMyOkhttp.get().url(Urls.DeviceIsRegist)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.DeviceIsRegist)
                 .addParam("type", "2")
                 .addParam("code", sn)
                 .tag(this)
@@ -351,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getData() {
         String sn = (String) SharedPreferencesUtil.get(MainActivity.this, "SN", "");
-        mMyOkhttp.get().url(Urls.GetTrainStudentData)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.GetTrainStudentData)
                 .addParam("tvCode", sn)
                 .tag(this)
                 .enqueue(new JsonResponseHandler() {
@@ -474,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void GetTrainStudentDataByGroupId() {
         String sn = (String) SharedPreferencesUtil.get(MainActivity.this, "SN", "");
-        mMyOkhttp.get().url(Urls.GetTrainStudentDataByGroupId)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.GetTrainStudentDataByGroupId)
                 .addParam("trainId", TrainId + "")
                 .addParam("groupIndex", GroupIndex + "")
                 .addParam("tvCode", sn)
@@ -549,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
      * 获取配置
      */
     private void GetConfigData() {
-        mMyOkhttp.get().url(Urls.GetConfigData)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.GetConfigData)
                 .tag(this)
                 .enqueue(new JsonResponseHandler() {
                     @Override
@@ -602,7 +622,7 @@ public class MainActivity extends AppCompatActivity {
      * @param studentId
      */
     private void startShot(final String trainId, String studentId) {
-        mMyOkhttp.get().url(Urls.StartShoot)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.StartShoot)
                 .addParam("trainId", trainId)
                 .addParam("studentId", studentId)
                 .tag(this)
@@ -645,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
      * @param studentId
      */
     private void endShot(String trainId, String studentId) {
-        mMyOkhttp.get().url(Urls.EndShoot)
+        mMyOkhttp.get().url(Urls.BASE_URL+Urls.EndShoot)
                 .addParam("trainId", trainId)
                 .addParam("studentId", studentId)
                 .tag(this)
@@ -930,33 +950,14 @@ public class MainActivity extends AppCompatActivity {
             mVideoView.setVideoURI(Uri.parse(info.getData().getVideoStreamUrl()));
             mVideoView.setAspectRatio(IRenderView.AR_16_9_FIT_PARENT);
             mVideoView.start();
-            mVideoView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (clickCount == 0) {
-                        preClickTime = System.currentTimeMillis();
-                        clickCount++;
-                    } else if (clickCount == 1) {
-                        long curTime = System.currentTimeMillis();
-                        if((curTime - preClickTime) < 500){
-                            doubleClick();
-                        }
-                        clickCount = 0;
-                        preClickTime = 0;
-                    }else{
-                        Log.e(TAG, "clickCount = " + clickCount);
-                        clickCount = 0;
-                        preClickTime = 0;
-                    }
-                }
-            });
+
 
         }
     }
     private void doubleClick() {
         Log.i(TAG, "double click");
         isShowRed=!isShowRed;
-        shotPoint.setShowRed(isShowRed);
+        shotPoint.setShowAll(isShowRed);
     }
 
     @OnClick({R.id.ready_layout, R.id.end_layout})

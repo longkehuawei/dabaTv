@@ -151,7 +151,7 @@ public class RegisterActivity extends Activity {
      * 获取数据
      */
     private void register() {
-        mMyOkhttp.post().url(Urls.RegistPad)
+        mMyOkhttp.post().url(Urls.BASE_URL+Urls.RegistPad)
                 .addParam("SN", deviceId)
                 .addParam("Name", mPadName.getText().toString())
                 .tag(this)
