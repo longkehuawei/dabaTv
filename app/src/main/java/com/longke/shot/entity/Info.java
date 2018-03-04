@@ -1,5 +1,6 @@
 package com.longke.shot.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -165,6 +166,35 @@ public class Info {
         private String StudentName;
         private int GroupIndex;
         private String StudentCode;
+        private String BeginShootTime;
+        private String TargetName;
+
+        public String getTargetName() {
+            return TargetName;
+        }
+
+        public void setTargetName(String targetName) {
+            TargetName = targetName;
+        }
+
+        public String getBeginShootTime() {
+            return BeginShootTime;
+        }
+
+        public void setBeginShootTime(String beginShootTime) {
+            BeginShootTime = beginShootTime;
+        }
+
+        public String getEndShootTime() {
+            return EndShootTime;
+        }
+
+        public void setEndShootTime(String endShootTime) {
+            EndShootTime = endShootTime;
+        }
+
+        private String EndShootTime;
+
         private String ShootModeName;
         private int CurrScore;
         private boolean IsLimitBullet;
@@ -336,7 +366,7 @@ public class Info {
             this.ShootDetailList = ShootDetailList;
         }*/
 
-        public static class ShootDetailListBean {
+        public static class ShootDetailListBean implements Serializable{
             /**
              * BulletIndex : 1
              * X : 604

@@ -14,10 +14,11 @@ import java.util.Map;
 public class SharedPreferencesUtil {
     public static final String UserCode="UserCode" ;
     public static final String Id="Id" ;
-    public static final String UserSecret="UserSecret" ;
     public static final String ServerUri="serverUri" ;
     public static final String BASE_URL="BASE_URL" ;
     public static final String IS_RED="isRed" ;
+    public static final String IS_RADIO="isRadio" ;
+    public static final String IS_VISITOR="isVisitor" ;
     /**
      * 保存在手机里面的文件名
      */
