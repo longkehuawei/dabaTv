@@ -4,7 +4,6 @@ package com.longke.shot;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,11 +16,8 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -34,7 +30,6 @@ import com.longke.shot.entity.Heartbeat;
 import com.longke.shot.entity.Info;
 import com.longke.shot.media.IRenderView;
 import com.longke.shot.media.IjkVideoView;
-import com.longke.shot.view.DialogUtil;
 import com.longke.shot.view.PointView;
 import com.tsy.sdk.myokhttp.MyOkHttp;
 import com.tsy.sdk.myokhttp.response.JsonResponseHandler;
@@ -117,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
     @InjectView(R.id.TargetName_tv)
     TextView mTargetNameTv;
+    @InjectView(R.id.title_tv)
+    TextView mTitleTv;
     private IjkVideoView mVideoView;
     private PointView shotPoint;
     private int mDuration;
@@ -165,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRestart = false;
     private boolean isFromViSitor = false;
     List<Integer> listRadio = new ArrayList<Integer>();
+    private boolean isConncet;
 
 
     String sn;
@@ -331,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
         DeviceIsRegist();
         GetConfigData();
 
-         //getData();
+        //getData();
 
 
         // map.put(1, soundPool.load(this,R.raw.wrong,1));
@@ -432,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
             music = "bugu.mp3";
 		} else {
 			*//*if ("0".equals(alert.getAlertmusic())) {
-				music = "bugu.mp3";
+                music = "bugu.mp3";
 			} else if ("1".equals(alert.getAlertmusic())) {
 				music = "lingdang.mp3";
 			} else if ("2".equals(alert.getAlertmusic())) {
@@ -505,6 +503,9 @@ public class MainActivity extends AppCompatActivity {
      * 建立连接
      */
     private void initConnection() {
+        if(isConncet){
+            return;
+        }
         clientId = clientId + System.currentTimeMillis();
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
@@ -558,6 +559,7 @@ public class MainActivity extends AppCompatActivity {
                     subscribeToTopic2();//shot
                     subscribeToTopic3();//shot
                     InitData();//强制刷新
+                    isConncet=true;
                 }
 
                 @Override
@@ -595,6 +597,12 @@ public class MainActivity extends AppCompatActivity {
                         mKemu.setText("科目 ：" + data.getShootModeName() + "");
                         mBencisheji.setText(data.getCurrScore() + "");
                         mTargetNameTv.setText(data.getTargetName());
+                        if("游客".equals(data.getStudentName())){
+                            mTitleTv.setText("自由模式");
+                        }else{
+                            mTitleTv.setText("考核模式");
+                        }
+
 
                         mZongchengji.setText(data.getTotalScore() + "");
                         if (data.getShootDetailList() == null || data.getShootDetailList().size() == 0) {
@@ -780,6 +788,11 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                         mZongchengji.setText(data.getTotalScore() + "");
+                        if("游客".equals(data.getStudentName())){
+                            mTitleTv.setText("自由模式");
+                        }else{
+                            mTitleTv.setText("考核模式");
+                        }
                         // mShengyushijian.setText(data.getRemainTime());
                         if (isNull) {
                             setVideoUri();
@@ -842,7 +855,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * 开始射击
      *
@@ -888,7 +900,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * 切换模式
      */
@@ -927,7 +938,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
 
     /**
@@ -1311,7 +1321,7 @@ public class MainActivity extends AppCompatActivity {
             Gson gson = new Gson();
 
             message.setPayload(gson.toJson(heartbeat).getBytes());
-            if(mqttAndroidClient==null){
+            if (mqttAndroidClient == null) {
                 return;
             }
             mqttAndroidClient.publish("Heartbeat", message);
@@ -1390,7 +1400,7 @@ public class MainActivity extends AppCompatActivity {
             isViSitor = (String) SharedPreferencesUtil.get(MainActivity.this, IS_VISITOR, "2");
             IS_RADIO = (boolean) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.IS_RADIO, false);
             isFromViSitor = true;
-            Urls.BASE_URL = (String)  SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.BASE_URL, "");
+            Urls.BASE_URL = (String) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.BASE_URL, "");
             shotPoint.setShowRed(isShowRedOpen);
             getData();
             GetConfigData();

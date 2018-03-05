@@ -534,21 +534,21 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                             message = "Invalid progressive playback";
                         }
 
-                        new android.app.AlertDialog.Builder(getContext())
+                       /* new android.app.AlertDialog.Builder(getContext())
                                 .setMessage(message)
                                 .setPositiveButton("error",
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
-                                            /* If we get here, there is no onError listener, so
+                                            *//* If we get here, there is no onError listener, so
                                              * at least inform them that the video is over.
-                                             */
+                                             *//*
                                                 if (mOnCompletionListener != null) {
                                                     mOnCompletionListener.onCompletion(mMediaPlayer);
                                                 }
                                             }
                                         })
                                 .setCancelable(false)
-                                .show();
+                                .show();*/
                     }
                     return true;
                 }
