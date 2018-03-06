@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
     TextView mTargetNameTv;
     @InjectView(R.id.title_tv)
     TextView mTitleTv;
+    @InjectView(R.id.root_layout)
+    LinearLayout mRootLayout;
     private IjkVideoView mVideoView;
     private PointView shotPoint;
     private int mDuration;
@@ -251,6 +253,13 @@ public class MainActivity extends AppCompatActivity {
                     mEndLayout.setClickable(true);
                     timer.start();
                     getData();
+                    break;
+                case 7:
+                    mActivityMain.setBackgroundResource(R.mipmap.jieshu);
+                    mRootLayout.setVisibility(View.GONE);
+                    break;
+                case 8:
+                    setVideoUri();
                     break;
             }
         }
@@ -436,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
 			} else if ("2".equals(alert.getAlertmusic())) {
 				music = "menghuan.mp3";
 			}*//*
-		}*/
+        }*/
         int fd = 0;
         switch (id) {
             case 0:
@@ -503,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
      * 建立连接
      */
     private void initConnection() {
-        if(isConncet){
+        if (isConncet) {
             return;
         }
         clientId = clientId + System.currentTimeMillis();
@@ -559,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
                     subscribeToTopic2();//shot
                     subscribeToTopic3();//shot
                     InitData();//强制刷新
-                    isConncet=true;
+                    isConncet = true;
                 }
 
                 @Override
@@ -597,9 +606,9 @@ public class MainActivity extends AppCompatActivity {
                         mKemu.setText("科目 ：" + data.getShootModeName() + "");
                         mBencisheji.setText(data.getCurrScore() + "");
                         mTargetNameTv.setText(data.getTargetName());
-                        if("游客".equals(data.getStudentName())){
+                        if ("游客".equals(data.getStudentName())) {
                             mTitleTv.setText("自由模式");
-                        }else{
+                        } else {
                             mTitleTv.setText("考核模式");
                         }
 
@@ -788,9 +797,9 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                         mZongchengji.setText(data.getTotalScore() + "");
-                        if("游客".equals(data.getStudentName())){
+                        if ("游客".equals(data.getStudentName())) {
                             mTitleTv.setText("自由模式");
-                        }else{
+                        } else {
                             mTitleTv.setText("考核模式");
                         }
                         // mShengyushijian.setText(data.getRemainTime());
@@ -1180,6 +1189,7 @@ public class MainActivity extends AppCompatActivity {
                     if (object.has("Type")) {
                         String type = object.getString("Type");
                         if ("Off".equals(type)) {
+                            handler.sendEmptyMessage(7);
 
                         }
 
@@ -1231,6 +1241,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         } else if ("Ready".equals(type)) {
+                            handler.sendEmptyMessage(8);
                             if (object.has("IsGuest")) {
                                 int IsGuest = object.getInt("IsGuest");
                                 if (IsGuest == 1) {
@@ -1243,6 +1254,7 @@ public class MainActivity extends AppCompatActivity {
                                 int IsGuest = object.getInt("IsGuest");
                                 if (IsGuest == 1) {
                                     GetTrainStudentDataByGroupId();
+
                                     //info.getData().setStatus(3);
 
                                 }
@@ -1322,12 +1334,15 @@ public class MainActivity extends AppCompatActivity {
 
             message.setPayload(gson.toJson(heartbeat).getBytes());
             if (mqttAndroidClient == null) {
+                initConnection();
+                return;
+            }
+            if (!mqttAndroidClient.isConnected()) {
+                initConnection();
                 return;
             }
             mqttAndroidClient.publish("Heartbeat", message);
-            if (!mqttAndroidClient.isConnected()) {
-                //addToHistory(mqttAndroidClient.getBufferedMessageCount() + " messages in buffer.");
-            }
+
         } catch (MqttException e) {
             System.err.println("Error Publishing: " + e.getMessage());
             e.printStackTrace();
