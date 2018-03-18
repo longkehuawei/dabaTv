@@ -19,10 +19,13 @@ public class SharedPreferencesUtil {
     public static final String IS_RED="isRed" ;
     public static final String IS_RADIO="isRadio" ;
     public static final String IS_VISITOR="isVisitor" ;
+    public static final String SHOW_OPTION="showOption";
     /**
      * 保存在手机里面的文件名
      */
     public static final String FILE_NAME = "share_data";
+    public static final String KAO_HEI = "kao_hei";
+    public static final String YOU_KE = "you_ke";
     public static final String GetAPPStartData = "GetAPPStartData";
     public static final String StaySeconds = "StaySeconds";
 

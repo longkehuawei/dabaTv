@@ -106,7 +106,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private int mVideoSarNum;
     private int mVideoSarDen;
     private boolean usingAndroidPlayer = false;
-    private boolean usingMediaCodec = true;
+    private boolean usingMediaCodec = false;
     private boolean usingMediaCodecAutoRotate = false;
     private boolean usingOpenSLES = false;
     private String pixelFormat = "";//Auto Select=,RGB 565=fcc-rv16,RGB 888X=fcc-rv32,YV12=fcc-yv12,默认为RGB 888X
@@ -237,6 +237,10 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         setVideoURI(uri, null);
     }
 
+    public void setVideoURIWithoutUpdate(Uri uri) {
+        setVideoURIWithoutUpdate(uri,null);
+    }
+
     /**
      * Sets video URI using specific headers.
      *
@@ -254,6 +258,13 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
         openVideo();
         requestLayout();
         invalidate();
+    }
+
+    private void setVideoURIWithoutUpdate(Uri uri, Map<String, String> headers) {
+        mUri = uri;
+        mHeaders = headers;
+        mSeekWhenPrepared = 0;
+        openVideo();
     }
 
     // REMOVED: addSubtitleSource
