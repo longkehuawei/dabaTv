@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import tv.danmaku.ijk.media.player.AndroidMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -114,6 +116,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private boolean enableSurfaceView = true;
     private boolean enableTextureView = false;
     private boolean enableNoView = false;
+    Timer timer1 = new Timer();
 
     public IjkVideoView(Context context) {
         super(context);
@@ -376,17 +379,36 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
             attachMediaController();
+            timer1.cancel();
         } catch (IOException ex) {
             Log.w(TAG, "Unable to open content: " + mUri, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
+            timer1.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    openVideo();
+                    requestLayout();
+                    invalidate();
+
+                }
+            }, 15000, 15000);
             return;
         } catch (IllegalArgumentException ex) {
             Log.w(TAG, "Unable to open content: " + mUri, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
+            timer1.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    openVideo();
+                    requestLayout();
+                    invalidate();
+
+                }
+            }, 15000, 15000);
             return;
         } finally {
             // REMOVED: mPendingSubtitleTracks.clear();

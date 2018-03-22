@@ -2,9 +2,14 @@ package com.longke.shot;
 
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -17,6 +22,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -32,6 +38,7 @@ import com.longke.shot.entity.Heartbeat;
 import com.longke.shot.entity.Info;
 import com.longke.shot.media.IRenderView;
 import com.longke.shot.media.IjkVideoView;
+import com.longke.shot.view.DialogUtil;
 import com.longke.shot.view.PointView;
 import com.tsy.sdk.myokhttp.MyOkHttp;
 import com.tsy.sdk.myokhttp.response.JsonResponseHandler;
@@ -290,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
     Timer timer2 = new Timer();
     private PopupWindow popupWindow;
     private View contentView;
+    private ConnectivityManager mConnectivityManager;
 
 
     @Override
@@ -304,6 +312,10 @@ public class MainActivity extends AppCompatActivity {
 
         sn = UUIDS.getUUID();
         Urls.BASE_URL = (String) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.BASE_URL, "");
+        mConnectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (!isNetworkAvailable()) {
+            publishMessageDialog("网络未连接，请检查网络");
+        }
         if (TextUtils.isEmpty(Urls.BASE_URL)) {
             startActivity(new Intent(MainActivity.this, ConfigureActivity.class).putExtra("isFromMain", true));
             finish();
@@ -415,8 +427,59 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }, 1000, 1000);
+        registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
+    /**
+     * Receiver that listens for connectivity chanes
+     * via ConnectivityManager
+     * 网络状态发生变化接收器
+     */
+    private final BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("BroadcastReceiver", "Connectivity Changed...");
+            if (!isNetworkAvailable()) {
+                publishMessageDialog("网络未连接，请检查网络");
+            } else {
+            }
+        }
+    };
+    private void publishMessageDialog(String message) {
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_not_login, null);
+        TextView textView = (TextView) view.findViewById(R.id.title_text);
+        TextView okText = (TextView) view.findViewById(R.id.btn_ok);
+        textView.setText(message);
+        okText.setText("好的");
+        view.findViewById(R.id.btn_cancel).setVisibility(View.GONE);
+        final Dialog ShowLoginDialog = DialogUtil.dialog(this, view);
+        okText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                ShowLoginDialog.dismiss();
+            }
+        });
+        view.findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowLoginDialog.dismiss();
+            }
+        });
+        ShowLoginDialog.show();
+    }
+    /**
+     * Query's the NetworkInfo via ConnectivityManager
+     * to return the current connected state
+     * 通过ConnectivityManager查询网络连接状态
+     *
+     * @return boolean true if we are connected false otherwise
+     * 如果网络状态正常则返回true反之flase
+     */
+    private boolean isNetworkAvailable() {
+        NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+
+        return (info == null) ? false : info.isConnected();
+    }
 
     @Override
     protected void onDestroy() {
@@ -1503,7 +1566,7 @@ public class MainActivity extends AppCompatActivity {
             isFromViSitor = true;
             Urls.BASE_URL = (String) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.BASE_URL, "");
             shotPoint.setShowRed(isShowRedOpen);
-            getData();
+            GetTrainStudentDataByGroupId();
             GetConfigData();
         }
     }
