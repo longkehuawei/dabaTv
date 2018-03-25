@@ -36,6 +36,7 @@ import com.google.gson.reflect.TypeToken;
 import com.longke.shot.entity.Data;
 import com.longke.shot.entity.Heartbeat;
 import com.longke.shot.entity.Info;
+import com.longke.shot.event.PublishEvent;
 import com.longke.shot.media.IRenderView;
 import com.longke.shot.media.IjkVideoView;
 import com.longke.shot.view.DialogUtil;
@@ -53,6 +54,9 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +76,9 @@ import butterknife.OnClick;
 import okhttp3.OkHttpClient;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
+import static android.R.attr.contentInsetStartWithNavigation;
 import static android.R.attr.data;
+import static android.R.attr.thickness;
 import static android.app.Activity.RESULT_OK;
 import static com.longke.shot.SharedPreferencesUtil.IS_VISITOR;
 import static com.longke.shot.SharedPreferencesUtil.SHOW_OPTION;
@@ -220,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
                     break;
                 case 3:
-                    getData();
+                    //getData();
                     //startHeCheng("环");
 
                     if (list != null) {
@@ -277,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
                     mEndLayout.setBackgroundResource(R.mipmap.btn02);
                     mEndLayout.setClickable(true);
                     timer.start();
-                    getData();
+                    GetTrainStudentDataByGroupId();
                     break;
                 case 7:
                     mActivityMain.setBackgroundResource(R.mipmap.jieshu);
@@ -313,9 +319,9 @@ public class MainActivity extends AppCompatActivity {
         sn = UUIDS.getUUID();
         Urls.BASE_URL = (String) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.BASE_URL, "");
         mConnectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        if (!isNetworkAvailable()) {
+       /* if (!isNetworkAvailable()) {
             publishMessageDialog("网络未连接，请检查网络");
-        }
+        }*/
         if (TextUtils.isEmpty(Urls.BASE_URL)) {
             startActivity(new Intent(MainActivity.this, ConfigureActivity.class).putExtra("isFromMain", true));
             finish();
@@ -327,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
         IS_RADIO = (boolean) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.IS_RADIO, false);
         SHOW_OPTION = (boolean) SharedPreferencesUtil.get(MainActivity.this, SharedPreferencesUtil.SHOW_OPTION, true);
         mMyOkhttp = new MyOkHttp(okHttpClient);
-
+        EventBus.getDefault().register(this);
 
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -496,6 +502,8 @@ public class MainActivity extends AppCompatActivity {
             timer.cancel();
             timer = null;
         }
+
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
 
 
@@ -868,7 +876,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, String error_msg) {
                         Log.d(TAG, "doPost onFailure:" + error_msg);
-                        // ToastUtil.showShort(BaseApplication.context,error_msg);
+                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -986,7 +994,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, String error_msg) {
                         Log.d(TAG, "doPost onFailure:" + error_msg);
-                        // ToastUtil.showShort(BaseApplication.context,error_msg);
+                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -1488,6 +1496,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void Event(PublishEvent messageEvent) {
+        setVideoUri(true);
+    }
+
 
     private void initView() {
         mVideoView = (IjkVideoView) findViewById(R.id.video_view);

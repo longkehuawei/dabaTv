@@ -35,6 +35,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.MediaController;
 
+import com.longke.shot.event.PublishEvent;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,7 +120,6 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
     private boolean enableSurfaceView = true;
     private boolean enableTextureView = false;
     private boolean enableNoView = false;
-    Timer timer1 = new Timer();
 
     public IjkVideoView(Context context) {
         super(context);
@@ -379,36 +382,17 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
             // target state that was there before.
             mCurrentState = STATE_PREPARING;
             attachMediaController();
-            timer1.cancel();
         } catch (IOException ex) {
             Log.w(TAG, "Unable to open content: " + mUri, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            timer1.schedule(new TimerTask() {
 
-                @Override
-                public void run() {
-                    openVideo();
-                    requestLayout();
-                    invalidate();
-
-                }
-            }, 15000, 15000);
             return;
         } catch (IllegalArgumentException ex) {
             Log.w(TAG, "Unable to open content: " + mUri, ex);
             mCurrentState = STATE_ERROR;
             mTargetState = STATE_ERROR;
-            timer1.schedule(new TimerTask() {
 
-                @Override
-                public void run() {
-                    openVideo();
-                    requestLayout();
-                    invalidate();
-
-                }
-            }, 15000, 15000);
             return;
         } finally {
             // REMOVED: mPendingSubtitleTracks.clear();
@@ -566,7 +550,7 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                         if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
                             message = "Invalid progressive playback";
                         }
-
+                        EventBus.getDefault().post(new PublishEvent());
                        /* new android.app.AlertDialog.Builder(getContext())
                                 .setMessage(message)
                                 .setPositiveButton("error",
