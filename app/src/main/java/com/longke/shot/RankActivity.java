@@ -72,6 +72,7 @@ public class RankActivity extends AppCompatActivity {
                             if(data.getRankingList()!=null){
                                 listView.setAdapter(new RankAdapter(RankActivity.this, data.getRankingList()));
                             }
+                            descTv.setText(data.getClassName()+" | 第"+data.getGroupIndex()+"组");
 
                         }
 

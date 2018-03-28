@@ -30,11 +30,11 @@
             android:gravity="center_horizontal"
             android:layout_height="wrap_content">
             <TextView
+                android:id="@+id/desc_tv"
                 android:layout_width="wrap_content"
                 android:textSize="18sp"
                 android:padding="10dp"
                 android:textColor="@color/title_text_color"
-                android:text="张三  |  二班  |  10组  |  总25发  |  总52环  | 15小时"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
