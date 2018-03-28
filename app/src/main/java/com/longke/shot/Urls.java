@@ -15,7 +15,8 @@ public class Urls {
     public static final String GetUseTime = BASE_URL +"/api/TrainStudent/GetUseTime";
     public static final String RegistPad = BASE_URL +"/api/Device/RegistTV";
     public static final String GetTrainStudentDataByGroupId = BASE_URL +"/api/TrainStudent/GetTrainStudentDataByGroupIdAndTVCode";
-
+    public static final String GetStudentRankingDetail = BASE_URL +"/api/TrainStudent/GetStudentRankingDetail";
+    public static final String GetStudentScoreDetail = BASE_URL +"/api/TrainStudent/GetStudentScoreDetail";
 
 
 

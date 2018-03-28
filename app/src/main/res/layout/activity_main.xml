@@ -47,6 +47,11 @@
 
                     android:layout_height="50dp"/>-->
                 <ImageView
+                    android:id="@+id/chengji"
+                    android:layout_width="52dp"
+                    android:src="@mipmap/chenji"
+                    android:layout_height="52dp"/>
+                <ImageView
                     android:id="@+id/sheshouxinxi"
                     android:layout_width="52dp"
                     android:layout_marginLeft="20dp"

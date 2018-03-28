@@ -23,19 +23,23 @@ import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.longke.shot.adapter.ScoreAdapter;
 import com.longke.shot.entity.Data;
 import com.longke.shot.entity.Heartbeat;
 import com.longke.shot.entity.Info;
+import com.longke.shot.entity.ItemBean;
 import com.longke.shot.event.PublishEvent;
 import com.longke.shot.media.IRenderView;
 import com.longke.shot.media.IjkVideoView;
@@ -76,12 +80,7 @@ import butterknife.OnClick;
 import okhttp3.OkHttpClient;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-import static android.R.attr.contentInsetStartWithNavigation;
-import static android.R.attr.data;
-import static android.R.attr.thickness;
-import static android.app.Activity.RESULT_OK;
 import static com.longke.shot.SharedPreferencesUtil.IS_VISITOR;
-import static com.longke.shot.SharedPreferencesUtil.SHOW_OPTION;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -134,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
     TextView mTitleTv;
     @InjectView(R.id.root_layout)
     LinearLayout mRootLayout;
+    @InjectView(R.id.chengji)
+    ImageView mChengJi;
     private IjkVideoView mVideoView;
     private PointView shotPoint;
     private int mDuration;
@@ -185,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
     List<Integer> listRadio = new ArrayList<Integer>();
     private boolean isConncet;
     private boolean isShowOrder;
+    private PopupWindow popRankWindow;
+    List<ItemBean.DataEntity.ShootDetailListEntity> mList;
 
     String sn;
     int i = 0;
@@ -1421,7 +1424,63 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
     }
+    /**
+     * 成绩详情
+     */
+    private void GetStudentScoreDetail( String trainId, String studentId) {
+        mMyOkhttp.get().url(Urls.BASE_URL + Urls.GetStudentScoreDetail)
+                .addParam("trainId", trainId + "")
+                .addParam("studentId", studentId + "")
+                .tag(this)
+                .enqueue(new JsonResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, JSONObject response) {
 
+                        ItemBean info = new Gson().fromJson(response.toString(), ItemBean.class);
+                        ItemBean.DataEntity data = info.getData();
+
+                        if (data!= null) {
+                            mList= data.getShootDetailList();
+                            if(mList==null){
+                                mList=new ArrayList<ItemBean.DataEntity.ShootDetailListEntity>();
+                            }
+                        } else{
+                            mList=new ArrayList<ItemBean.DataEntity.ShootDetailListEntity>();
+                        }
+                        scoreDialog();
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, JSONArray response) {
+                        Log.d(TAG, "doPost onSuccess JSONArray:" + response);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, String error_msg) {
+                        Log.d(TAG, "doPost onFailure:" + error_msg);
+                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
+                        // ToastUtil.showShort(BaseApplication.context,error_msg);
+                    }
+                });
+    }
+    private void  scoreDialog() {
+        View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_score_layout, null);
+        ListView listView = (ListView) view.findViewById(R.id.listView);
+        if(mList==null){
+            mList=new ArrayList<>();
+        }
+        listView.setAdapter(new ScoreAdapter(this, mList));
+        ImageView deleteIv = (ImageView) view.findViewById(R.id.delete_iv);
+        final Dialog ShowLoginDialog = DialogUtil.dialog(this, view);
+        deleteIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ShowLoginDialog.dismiss();
+            }
+        });
+        ShowLoginDialog.show();
+    }
     /**
      * 添加订阅，接受消息
      */
@@ -1548,7 +1607,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @OnClick({R.id.ready_layout, R.id.end_layout, R.id.sheshouxinxi})
+    @OnClick({R.id.chengji, R.id.sheshouxinxi})
     public void onClick(View view) {
         switch (view.getId()) {
 
@@ -1562,6 +1621,61 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }*/
                 startActivityForResult(new Intent(MainActivity.this, ConfigureActivity.class), 0);
+                break;
+            case R.id.chengji:
+                if (popRankWindow == null) {
+                    contentView = LayoutInflater.from(this).inflate(R.layout.pop_rank_menu, null);
+                    popRankWindow = new PopupWindow(contentView, 500, 160, true);
+                    popRankWindow.setOutsideTouchable(true);
+                    popRankWindow.setFocusable(false);
+                    final TextView scoreTv = (TextView) contentView.findViewById(R.id.score_tv);
+                    final TextView rankTv = (TextView) contentView.findViewById(R.id.rank_tv);
+                    scoreTv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            if (info != null && info.getData() != null) {
+                                if(info.getData().getStatus()==4){
+                                    GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+                                }else{
+                                    Toast.makeText(MainActivity.this,"亲，考试还没结束",Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+
+                            popRankWindow.dismiss();
+                        }
+                    });
+                    rankTv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (info != null && info.getData() != null) {
+                                if(info.getData().getStatus()==4){
+                                    startActivity(new Intent(MainActivity.this,RankActivity.class).putExtra("TrainId",info.getData().getTrainId() + "").putExtra("studentId",info.getData().getStudentId() + ""));
+                                }else{
+                                    Toast.makeText(MainActivity.this,"亲，考试还没结束",Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+
+                            popRankWindow.dismiss();
+                        }
+                    });
+
+                    popRankWindow.setOutsideTouchable(true);
+                    popRankWindow.setFocusable(false);
+                    contentView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            if (popRankWindow != null && popRankWindow.isShowing()) {
+                                popRankWindow.dismiss();
+                            }
+                            return false;
+                        }
+                    });
+                }
+
+                popRankWindow.showAsDropDown(mChengJi, 0, 20);
                 break;
 
         }
