@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isConncet;
     private boolean isShowOrder;
     private PopupWindow popRankWindow;
-    List<ItemBean.DataEntity.ShootDetailListEntity> mList;
+    Dialog scoreDialog;
 
     String sn;
     int i = 0;
@@ -273,9 +273,15 @@ public class MainActivity extends AppCompatActivity {
                         mEndLayout.setClickable(false);
                     }
                     GetTrainStudentDataByGroupId();
+                    GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
 
                     break;
                 case 5://强制刷新
+                    if(scoreDialog!=null){
+                        if(scoreDialog.isShowing()){
+                            scoreDialog.dismiss();
+                        }
+                    }
                     GetTrainStudentDataByGroupId();
                     break;
                 case 6:
@@ -1436,18 +1442,19 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(int statusCode, JSONObject response) {
 
-                        ItemBean info = new Gson().fromJson(response.toString(), ItemBean.class);
-                        ItemBean.DataEntity data = info.getData();
-
+                        ItemBean  info = new Gson().fromJson(response.toString(), ItemBean.class);
+                        ItemBean.DataBean data = info.getData();
+                        List<ItemBean.DataBean.ShootDetailListBean> mList;
                         if (data!= null) {
                             mList= data.getShootDetailList();
+
                             if(mList==null){
-                                mList=new ArrayList<ItemBean.DataEntity.ShootDetailListEntity>();
+                                mList=new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
                             }
                         } else{
-                            mList=new ArrayList<ItemBean.DataEntity.ShootDetailListEntity>();
+                            mList=new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
                         }
-                        scoreDialog(data.getStudentData());
+                        scoreDialog(data.getStudentData(),mList);
                     }
 
                     @Override
@@ -1463,7 +1470,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    private void  scoreDialog(ItemBean.DataEntity.StudentDataEntity entity) {
+    private void  scoreDialog(ItemBean.DataBean.StudentDataBean entity,List<ItemBean.DataBean.ShootDetailListBean> mList) {
         if(entity==null){
             return;
         }
@@ -1471,20 +1478,20 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = (ListView) view.findViewById(R.id.listView);
         TextView desc_tv= (TextView) view.findViewById(R.id.desc_tv);
         desc_tv.setText(entity.getStudentName() +" | "+entity.getClassName()+" | "+entity.getGroupIndex()+"组 | 总"+entity.getTotalBulletCount()+"发 | 总"+entity.getTotalScore()+"环 | "+entity.getUseTime());
-        if(mList==null){
-            mList=new ArrayList<>();
-        }
-        listView.setAdapter(new ScoreAdapter(this, mList));
+
+        ScoreAdapter adapter=new ScoreAdapter(this, mList);
+        listView.setAdapter(adapter);
+
         ImageView deleteIv = (ImageView) view.findViewById(R.id.delete_iv);
-        final Dialog ShowLoginDialog = DialogUtil.dialog(this, view);
+        scoreDialog = DialogUtil.dialog(this, view);
         deleteIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ShowLoginDialog.dismiss();
+                scoreDialog.dismiss();
             }
         });
-        ShowLoginDialog.show();
+        scoreDialog.show();
     }
     /**
      * 添加订阅，接受消息

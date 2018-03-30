@@ -35,6 +35,7 @@
                 android:textSize="18sp"
                 android:padding="10dp"
                 android:textColor="@color/title_text_color"
+                android:text="张三  |  二班  |  10组  |  总25发  |  总52环  | 15小时"
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
@@ -73,5 +74,5 @@
             android:layout_width="match_parent"
             android:divider="#e7e7e8"
             android:dividerHeight="0.7dp"
-            android:layout_height="wrap_content"></ListView>
+            android:layout_height="350dp"></ListView>
 </LinearLayout>
