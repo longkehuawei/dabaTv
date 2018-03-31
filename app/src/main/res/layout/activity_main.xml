@@ -404,7 +404,7 @@
                 <!--准备射击按钮-->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_marginTop="70dp"
+                    android:layout_marginTop="30dp"
                     android:layout_height="wrap_content">
                     <LinearLayout
                         android:id="@+id/ready_layout"
@@ -467,6 +467,11 @@
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </LinearLayout>
+                <ImageView
+                    android:id="@+id/erweima"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

@@ -34,6 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.longke.shot.adapter.ScoreAdapter;
 import com.longke.shot.entity.Data;
@@ -135,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout mRootLayout;
     @InjectView(R.id.chengji)
     ImageView mChengJi;
+    @InjectView(R.id.erweima)
+    ImageView mErweima;
     private IjkVideoView mVideoView;
     private PointView shotPoint;
     private int mDuration;
@@ -207,10 +210,10 @@ public class MainActivity extends AppCompatActivity {
                     if (mTitleTv.getText().toString().equals("自由模式")) {
                         SpTools.putStringValue(MainActivity.this, SharedPreferencesUtil.YOU_KE, "");
                     } else {
-                        SpTools.putStringValue(MainActivity.this, SharedPreferencesUtil.KAO_HEI,"");
+                        SpTools.putStringValue(MainActivity.this, SharedPreferencesUtil.KAO_HEI, "");
                     }
-                   // SpTools.putStringValue(MainActivity.this, info.getData().getStudentCode(), "");
-                    shotPoint.setTempShootDetailListBean(tempList,true);
+                    // SpTools.putStringValue(MainActivity.this, info.getData().getStudentCode(), "");
+                    shotPoint.setTempShootDetailListBean(tempList, true);
 
                     mReadyLayout.setBackgroundResource(R.mipmap.btn01);
                     mReadyLayout.setClickable(true);
@@ -222,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         timer.cancel();
                         timer.start();
-                    }catch (Exception e){
+                    } catch (Exception e) {
 
                     }
 
@@ -234,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (list != null) {
                         if (tempList.size() > 0) {
-                            shotPoint.setTempShootDetailListBean(tempList,false);
+                            shotPoint.setTempShootDetailListBean(tempList, false);
 
                         }
                         shotPoint.setShootDetailListBean(list);
@@ -271,14 +274,19 @@ public class MainActivity extends AppCompatActivity {
                         mReadyLayout.setClickable(false);
                         mEndLayout.setBackgroundResource(R.drawable.gray_shape);
                         mEndLayout.setClickable(false);
+                        try {
+                            GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+                        }catch (Exception e){
+
+                        }
                     }
                     GetTrainStudentDataByGroupId();
-                    GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+
 
                     break;
                 case 5://强制刷新
-                    if(scoreDialog!=null){
-                        if(scoreDialog.isShowing()){
+                    if (scoreDialog != null) {
+                        if (scoreDialog.isShowing()) {
                             scoreDialog.dismiss();
                         }
                     }
@@ -413,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     setVideoUri(false);
                     mNumLayout.setVisibility(View.GONE);
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
 
@@ -444,6 +452,7 @@ public class MainActivity extends AppCompatActivity {
         }, 1000, 1000);
         registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
+
     /**
      * Receiver that listens for connectivity chanes
      * via ConnectivityManager
@@ -459,6 +468,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
     private void publishMessageDialog(String message) {
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_not_login, null);
         TextView textView = (TextView) view.findViewById(R.id.title_text);
@@ -482,6 +492,7 @@ public class MainActivity extends AppCompatActivity {
         });
         ShowLoginDialog.show();
     }
+
     /**
      * Query's the NetworkInfo via ConnectivityManager
      * to return the current connected state
@@ -504,17 +515,16 @@ public class MainActivity extends AppCompatActivity {
             mMediaPlayer = null;
         }
         timer1.cancel();
-        timer1=null;
+        timer1 = null;
         timer2.cancel();
-        timer2=null;
-        if(timer!=null){
+        timer2 = null;
+        if (timer != null) {
             timer.cancel();
             timer = null;
         }
 
         EventBus.getDefault().unregister(this);
         super.onDestroy();
-
 
 
     }
@@ -743,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             list = data.getShootDetailList();
-                            String temp="";
+                            String temp = "";
                             if ("游客".equals(data.getStudentName())) {
                                 temp = SpTools.getStringValue(MainActivity.this, SharedPreferencesUtil.YOU_KE, "");
                                 //SpTools.putStringValue(MainActivity.this, SharedPreferencesUtil.YOU_KE,"");
@@ -755,18 +765,18 @@ public class MainActivity extends AppCompatActivity {
                                 Gson gson = new Gson();
                                 Data data1 = gson.fromJson(temp,
                                         Data.class);
-                                if(info.getData().getStudentCode().equals(data1.getStudentCode())){
-                                    tempList=data1.getList();
-                                    shotPoint.setTempShootDetailListBean(tempList,false);
-                                }else {
+                                if (info.getData().getStudentCode().equals(data1.getStudentCode())) {
+                                    tempList = data1.getList();
+                                    shotPoint.setTempShootDetailListBean(tempList, false);
+                                } else {
                                     tempList = new ArrayList<Info.DataBean.ShootDetailListBean>();
-                                    shotPoint.setTempShootDetailListBean(tempList,false);
+                                    shotPoint.setTempShootDetailListBean(tempList, false);
                                 }
 
 
-                            }else {
+                            } else {
                                 tempList = new ArrayList<Info.DataBean.ShootDetailListBean>();
-                                shotPoint.setTempShootDetailListBean(tempList,false);
+                                shotPoint.setTempShootDetailListBean(tempList, false);
                             }
                             if (list != null) {
                                 shotPoint.setShootDetailListBean(list);
@@ -826,6 +836,10 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject object = response.getJSONObject("Data");
                             String MqttServerIP = object.getString("MqttServerIP");
                             String MqttPort = object.getString("MqttPort");
+                            String QRCodePath = Urls.BASE_URL + object.getString("QRCodePath");
+                            Glide.with(MainActivity.this)
+                                    .load(QRCodePath)
+                                    .into(mErweima);
                             serverUri = "tcp://" + MqttServerIP + ":" + MqttPort;
                             initConnection();
                         } catch (JSONException e) {
@@ -885,7 +899,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, String error_msg) {
                         Log.d(TAG, "doPost onFailure:" + error_msg);
-                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "请检查网络，及服务器配置", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -907,7 +921,7 @@ public class MainActivity extends AppCompatActivity {
                         boolean isNull = false;
                         if (info == null || info.getData() == null) {
                             isNull = true;
-                            if(info==null){
+                            if (info == null) {
                                 return;
                             }
                         }
@@ -938,7 +952,7 @@ public class MainActivity extends AppCompatActivity {
                         if (isNull) {
                             setVideoUri(false);
                         }
-                        String temp="";
+                        String temp = "";
                         if ("游客".equals(data.getStudentName())) {
                             temp = SpTools.getStringValue(MainActivity.this, SharedPreferencesUtil.YOU_KE, "");
                             //SpTools.putStringValue(MainActivity.this, SharedPreferencesUtil.YOU_KE,"");
@@ -950,18 +964,18 @@ public class MainActivity extends AppCompatActivity {
                             Gson gson = new Gson();
                             Data data1 = gson.fromJson(temp,
                                     Data.class);
-                            if(info.getData().getStudentCode().equals(data1.getStudentCode())){
-                                tempList=data1.getList();
-                                shotPoint.setTempShootDetailListBean(tempList,false);
-                            }else {
+                            if (info.getData().getStudentCode().equals(data1.getStudentCode())) {
+                                tempList = data1.getList();
+                                shotPoint.setTempShootDetailListBean(tempList, false);
+                            } else {
                                 tempList = new ArrayList<Info.DataBean.ShootDetailListBean>();
-                                shotPoint.setTempShootDetailListBean(tempList,false);
+                                shotPoint.setTempShootDetailListBean(tempList, false);
                             }
 
 
-                        }else {
+                        } else {
                             tempList.clear();
-                            shotPoint.setTempShootDetailListBean(tempList,false);
+                            shotPoint.setTempShootDetailListBean(tempList, false);
                         }
 
                         list = data.getShootDetailList();
@@ -1003,7 +1017,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, String error_msg) {
                         Log.d(TAG, "doPost onFailure:" + error_msg);
-                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "请检查网络，及服务器配置", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -1168,8 +1182,7 @@ public class MainActivity extends AppCompatActivity {
                     if (object.has("Type") && object.has("RangeId")) {
                         String type = object.getString("Type");
                         String RangeId = object.getString("RangeId");
-                        if (RangeId.equals(info.getData().getRangeId() + ""))
-                        {
+                        if (RangeId.equals(info.getData().getRangeId() + "")) {
                             if ("Ready".equals(type)) {
                                 handler.sendEmptyMessage(1);
 
@@ -1246,7 +1259,7 @@ public class MainActivity extends AppCompatActivity {
                                     bean.setHeight(object.getInt("Height"));
                                     bean.setScore(object.getInt("Score"));
                                     tempList.add(bean);
-                                    Data dataj=new Data();
+                                    Data dataj = new Data();
                                     dataj.setList(tempList);
                                     dataj.setStudentCode(info.getData().getStudentCode());
                                     Gson gson = new Gson();
@@ -1430,10 +1443,11 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
     }
+
     /**
      * 成绩详情
      */
-    private void GetStudentScoreDetail( String trainId, String studentId) {
+    private void GetStudentScoreDetail(String trainId, String studentId) {
         mMyOkhttp.get().url(Urls.BASE_URL + Urls.GetStudentScoreDetail)
                 .addParam("trainId", trainId + "")
                 .addParam("studentId", studentId + "")
@@ -1442,19 +1456,21 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(int statusCode, JSONObject response) {
 
-                        ItemBean  info = new Gson().fromJson(response.toString(), ItemBean.class);
+                        ItemBean info = new Gson().fromJson(response.toString(), ItemBean.class);
                         ItemBean.DataBean data = info.getData();
                         List<ItemBean.DataBean.ShootDetailListBean> mList;
-                        if (data!= null) {
-                            mList= data.getShootDetailList();
+                        if (data != null) {
+                            mList = data.getShootDetailList();
 
-                            if(mList==null){
-                                mList=new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
+                            if (mList == null) {
+                                mList = new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
                             }
-                        } else{
-                            mList=new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
+                        } else {
+                            mList = new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
                         }
-                        scoreDialog(data.getStudentData(),mList);
+                        if(data!=null){
+                            scoreDialog(data.getStudentData(),mList);
+                        }
                     }
 
                     @Override
@@ -1465,21 +1481,22 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, String error_msg) {
                         Log.d(TAG, "doPost onFailure:" + error_msg);
-                        Toast.makeText(MainActivity.this,"请检查网络，及服务器配置",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "请检查网络，及服务器配置", Toast.LENGTH_SHORT).show();
                         // ToastUtil.showShort(BaseApplication.context,error_msg);
                     }
                 });
     }
-    private void  scoreDialog(ItemBean.DataBean.StudentDataBean entity,List<ItemBean.DataBean.ShootDetailListBean> mList) {
-        if(entity==null){
+
+    private void scoreDialog(ItemBean.DataBean.StudentDataBean entity, List<ItemBean.DataBean.ShootDetailListBean> mList) {
+        if (entity == null) {
             return;
         }
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_score_layout, null);
         ListView listView = (ListView) view.findViewById(R.id.listView);
-        TextView desc_tv= (TextView) view.findViewById(R.id.desc_tv);
-        desc_tv.setText(entity.getStudentName() +" | "+entity.getClassName()+" | "+entity.getGroupIndex()+"组 | 总"+entity.getTotalBulletCount()+"发 | 总"+entity.getTotalScore()+"环 | "+entity.getUseTime());
+        TextView desc_tv = (TextView) view.findViewById(R.id.desc_tv);
+        desc_tv.setText(entity.getStudentName() + " | " + entity.getClassName() + " | " + entity.getGroupIndex() + "组 | 总" + entity.getTotalBulletCount() + "发 | 总" + entity.getTotalScore() + "环 | " + entity.getUseTime());
 
-        ScoreAdapter adapter=new ScoreAdapter(this, mList);
+        ScoreAdapter adapter = new ScoreAdapter(this, mList);
         listView.setAdapter(adapter);
 
         ImageView deleteIv = (ImageView) view.findViewById(R.id.delete_iv);
@@ -1493,6 +1510,7 @@ public class MainActivity extends AppCompatActivity {
         });
         scoreDialog.show();
     }
+
     /**
      * 添加订阅，接受消息
      */
@@ -1567,6 +1585,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void Event(PublishEvent messageEvent) {
         setVideoUri(true);
@@ -1595,13 +1614,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setVideoUri(boolean update) {
         if (info != null && info.getData() != null) {
-            if (update)
-            {
+            if (update) {
                 mVideoView.setVideoURI(Uri.parse(info.getData().getVideoStreamUrl()));
                 mVideoView.setAspectRatio(IRenderView.AR_16_9_FIT_PARENT);
                 mVideoView.start();
-            }
-            else {
+            } else {
                 mVideoView.setVideoURIWithoutUpdate(Uri.parse(info.getData().getVideoStreamUrl()));
                 mVideoView.start();
             }
@@ -1647,10 +1664,10 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(View v) {
 
                             if (info != null && info.getData() != null) {
-                                if(info.getData().getStatus()==4){
+                                if (info.getData().getStatus() == 4) {
                                     GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
-                                }else{
-                                    Toast.makeText(MainActivity.this,"亲，考试还没结束",Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
                                 }
 
                             }
@@ -1662,10 +1679,10 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             if (info != null && info.getData() != null) {
-                                if(info.getData().getStatus()==4){
-                                    startActivity(new Intent(MainActivity.this,RankActivity.class).putExtra("TrainId",info.getData().getTrainId() + "").putExtra("studentId",info.getData().getStudentId() + ""));
-                                }else{
-                                    Toast.makeText(MainActivity.this,"亲，考试还没结束",Toast.LENGTH_SHORT).show();
+                                if (info.getData().getStatus() == 4) {
+                                    startActivity(new Intent(MainActivity.this, RankActivity.class).putExtra("TrainId", info.getData().getTrainId() + "").putExtra("studentId", info.getData().getStudentId() + ""));
+                                } else {
+                                    Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
