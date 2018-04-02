@@ -41,6 +41,7 @@ import com.longke.shot.entity.Data;
 import com.longke.shot.entity.Heartbeat;
 import com.longke.shot.entity.Info;
 import com.longke.shot.entity.ItemBean;
+import com.longke.shot.event.CloseEvent;
 import com.longke.shot.event.PublishEvent;
 import com.longke.shot.media.IRenderView;
 import com.longke.shot.media.IjkVideoView;
@@ -290,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
                             scoreDialog.dismiss();
                         }
                     }
+                    EventBus.getDefault().post(new CloseEvent());
                     GetTrainStudentDataByGroupId();
                     break;
                 case 6:
@@ -1491,6 +1493,7 @@ public class MainActivity extends AppCompatActivity {
         if (entity == null) {
             return;
         }
+
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.dialog_score_layout, null);
         ListView listView = (ListView) view.findViewById(R.id.listView);
         TextView desc_tv = (TextView) view.findViewById(R.id.desc_tv);
@@ -1741,6 +1744,44 @@ public class MainActivity extends AppCompatActivity {
             case KeyEvent.KEYCODE_MENU:
                 startActivity(new Intent(MainActivity.this, ConfigureActivity.class).putExtra("isFromMain", true));
                 finish();
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT: //向左键
+                if (scoreDialog != null) {
+                    if (scoreDialog.isShowing()) {
+
+                    }else{
+                        if (info != null && info.getData() != null) {
+                            if (info.getData().getStatus() == 4) {
+                                GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+                            } else {
+                                Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    }
+                } else{
+                    if (info != null && info.getData() != null) {
+                        if (info.getData().getStatus() == 4) {
+                            GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+                        } else {
+                            Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }
+
+
+                break;
+
+            case KeyEvent.KEYCODE_DPAD_RIGHT:  //向右键
+                Log.d(TAG,"right--->");
+                if (info != null && info.getData() != null) {
+                    if (info.getData().getStatus() == 4) {
+                        startActivity(new Intent(MainActivity.this, RankActivity.class).putExtra("TrainId", info.getData().getTrainId() + "").putExtra("studentId", info.getData().getStudentId() + ""));
+                    } else {
+                        Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
+                    }
+                }
                 break;
         }
         return super.onKeyDown(keyCode, event);
