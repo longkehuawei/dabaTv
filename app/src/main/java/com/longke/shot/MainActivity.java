@@ -191,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean isConncet;
     private boolean isShowOrder;
     private PopupWindow popRankWindow;
-    Dialog scoreDialog;
 
     String sn;
     int i = 0;
@@ -275,22 +274,16 @@ public class MainActivity extends AppCompatActivity {
                         mReadyLayout.setClickable(false);
                         mEndLayout.setBackgroundResource(R.drawable.gray_shape);
                         mEndLayout.setClickable(false);
-                        try {
-                            GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
-                        }catch (Exception e){
+                        startActivity(new Intent(MainActivity.this, ScoreActivity.class).putExtra("TrainId", info.getData().getTrainId() + "").putExtra("studentId", info.getData().getStudentId() + ""));
 
-                        }
+
                     }
                     GetTrainStudentDataByGroupId();
 
 
                     break;
                 case 5://强制刷新
-                    if (scoreDialog != null) {
-                        if (scoreDialog.isShowing()) {
-                            scoreDialog.dismiss();
-                        }
-                    }
+
                     EventBus.getDefault().post(new CloseEvent());
                     GetTrainStudentDataByGroupId();
                     break;
@@ -1446,50 +1439,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 成绩详情
-     */
-    private void GetStudentScoreDetail(String trainId, String studentId) {
-        mMyOkhttp.get().url(Urls.BASE_URL + Urls.GetStudentScoreDetail)
-                .addParam("trainId", trainId + "")
-                .addParam("studentId", studentId + "")
-                .tag(this)
-                .enqueue(new JsonResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, JSONObject response) {
 
-                        ItemBean info = new Gson().fromJson(response.toString(), ItemBean.class);
-                        ItemBean.DataBean data = info.getData();
-                        List<ItemBean.DataBean.ShootDetailListBean> mList;
-                        if (data != null) {
-                            mList = data.getShootDetailList();
 
-                            if (mList == null) {
-                                mList = new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
-                            }
-                        } else {
-                            mList = new ArrayList<ItemBean.DataBean.ShootDetailListBean>();
-                        }
-                        if(data!=null){
-                            scoreDialog(data.getStudentData(),mList);
-                        }
-                    }
-
-                    @Override
-                    public void onSuccess(int statusCode, JSONArray response) {
-                        Log.d(TAG, "doPost onSuccess JSONArray:" + response);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, String error_msg) {
-                        Log.d(TAG, "doPost onFailure:" + error_msg);
-                        Toast.makeText(MainActivity.this, "请检查网络，及服务器配置", Toast.LENGTH_SHORT).show();
-                        // ToastUtil.showShort(BaseApplication.context,error_msg);
-                    }
-                });
-    }
-
-    private void scoreDialog(ItemBean.DataBean.StudentDataBean entity, List<ItemBean.DataBean.ShootDetailListBean> mList) {
+  /*  private void scoreDialog(ItemBean.DataBean.StudentDataBean entity, List<ItemBean.DataBean.ShootDetailListBean> mList) {
         if (entity == null) {
             return;
         }
@@ -1512,7 +1464,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         scoreDialog.show();
-    }
+    }*/
 
     /**
      * 添加订阅，接受消息
@@ -1668,7 +1620,7 @@ public class MainActivity extends AppCompatActivity {
 
                             if (info != null && info.getData() != null) {
                                 if (info.getData().getStatus() == 4) {
-                                    GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
+                                    startActivity(new Intent(MainActivity.this, ScoreActivity.class).putExtra("TrainId", info.getData().getTrainId() + "").putExtra("studentId", info.getData().getStudentId() + ""));
                                 } else {
                                     Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
                                 }
@@ -1746,30 +1698,14 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT: //向左键
-                if (scoreDialog != null) {
-                    if (scoreDialog.isShowing()) {
-
-                    }else{
-                        if (info != null && info.getData() != null) {
-                            if (info.getData().getStatus() == 4) {
-                                GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
-                            } else {
-                                Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
+                if (info != null && info.getData() != null) {
+                    if (info.getData().getStatus() == 4) {
+                        startActivity(new Intent(MainActivity.this, ScoreActivity.class).putExtra("TrainId", info.getData().getTrainId() + "").putExtra("studentId", info.getData().getStudentId() + ""));
+                    } else {
+                        Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
                     }
-                } else{
-                    if (info != null && info.getData() != null) {
-                        if (info.getData().getStatus() == 4) {
-                            GetStudentScoreDetail(info.getData().getTrainId() + "", info.getData().getStudentId() + "");
-                        } else {
-                            Toast.makeText(MainActivity.this, "亲，考试还没结束", Toast.LENGTH_SHORT).show();
-                        }
 
-                    }
                 }
-
 
                 break;
 
